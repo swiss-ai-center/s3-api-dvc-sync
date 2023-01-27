@@ -51,7 +51,7 @@ def dvc_commit_push():
     git_folder = os.getenv("GIT_FOLDER")
     dataset = os.getenv("DVC_DATASET")
     # commit the changes to dvc repo
-    dvc_commit = run(
+    run(
         ["dvc", "commit", f"{dataset}.dvc", "-f"],
         cwd=git_folder,
         stdout=PIPE

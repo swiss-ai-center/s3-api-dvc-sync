@@ -6,8 +6,13 @@ import datetime
 import hashlib
 import math
 
+from dotenv import load_dotenv
+load_dotenv()
+
+data_folder = os.getenv("S3_DATA_FOLDER")
+
 def physical_path(relative):
-    return f"./data/{relative}"
+    return f"{data_folder}/{relative}"
 
 
 def create_folder_if_not_exist(relative):

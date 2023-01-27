@@ -1,5 +1,4 @@
-data
-git
 .vscode
 __pycache__
 .env
+storage

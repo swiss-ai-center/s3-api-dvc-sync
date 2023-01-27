@@ -94,6 +94,8 @@ def init_git_repo():
     dvc_cloud_storage_provider = os.getenv("DVC_CLOUD_STORAGE_PROVIDER")
     dvc_bucket_name = os.getenv("DVC_BUCKET_NAME")
 
+    print("## INIT | DvC Add Remote")
+
     run(
         f"dvc remote add -d {dvc_remote_name} {dvc_cloud_storage_provider}://{dvc_bucket_name}/dvcstore -f", 
         cwd=git_folder, 
@@ -102,6 +104,7 @@ def init_git_repo():
     )
 
     if dvc_cloud_storage_provider == "gs":
+        print("## INIT | DvC Add Remote | GS")
         # setup DvC to use GCP as remote storage
         google_application_credentials = os.getenv("DVC_GOOGLE_APPLICATION_CREDENTIALS")
         gcp_service_account_key = os.getenv("DVC_GCP_SERVICE_ACCOUNT_KEY")
@@ -118,6 +121,7 @@ def init_git_repo():
 
     
     if dvc_cloud_storage_provider == "s3":
+        print("## INIT | DvC Add Remote | S3")
         # setup DvC to use S3 as remote storage
         dvc_s3_endpoint = os.getenv("DVC_S3_ENDPOINT")
 

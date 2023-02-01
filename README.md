@@ -1,4 +1,6 @@
-# DVC Sync S3 API: Bridging the Gap between Annotation Tools and Data Science Pipelines
+# DVC Sync S3 API
+
+## Bridging the Gap between Annotation Tools and Data Science Pipelines
 
 Data stored in labeling tools, such as Label Studio, is not directly accessible in the data science pipeline. This project aims to address this issue by providing a minimal S3 API that can serve as a bridge between the annotation tools and Data Versioning Control (DVC).
 

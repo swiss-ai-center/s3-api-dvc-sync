@@ -20,11 +20,22 @@ def get_aws_v4_signature_key(key, datestamp, region, service):
     key_service = sign(key_region, service)
     return sign(key_service, 'aws4_request')
 
+def get_aws_v4_cannonical_query_string(query_string):
+    # Get the query string from the starlette request object
+    # Split the query string into a list of key-value pairs
+    query_string_list = query_string.split('&')
+    # Sort the list of key-value pairs
+    query_string_list.sort()
+    # Join the list of key-value pairs into a string
+    query_string = '&'.join(query_string_list)
+    # Return the query string
+    return query_string
+
 def get_aws_v4_canonical_request(request):
     # Get the HTTP method, URI, and query string from the starlette request object
     http_method = request.method
-    request_uri = request.url.path
-    query_string = request.url.query
+    canonical_uri = request.url.path
+    query_string = get_aws_v4_cannonical_query_string(request.url.query)
 
     # Get the authorization header from the request
     authorization_header = request.headers['Authorization']
@@ -49,9 +60,9 @@ def get_aws_v4_canonical_request(request):
     # Create a list of header values in the request
     header_values = [headers[key] for key in header_keys]
     # Create a list of headers in key1;key2 format
-    headers_str = '\n'.join(f'{key}:{value}' for key, value in zip(header_keys, header_values))
+    canonical_headers = '\n'.join(f'{key}:{value}' for key, value in zip(header_keys, header_values))
     # Create the AWS Canonical Request string
-    canonical_request = f'{http_method}\n{request_uri}\n{query_string}\n{headers_str}\n\n{";".join(header_keys)}\n{payload}'
+    canonical_request = f'{http_method}\n{canonical_uri}\n{query_string}\n{canonical_headers}\n\n{";".join(header_keys)}\n{payload}'
 
     return canonical_request
 

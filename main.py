@@ -12,8 +12,6 @@ from utils.debounce import debounce
 
 from threading import Thread
 
-
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -93,14 +91,18 @@ async def handle_request(req: Request, _):
         if len(path) > 2:
             # GetObject - if the path is not empty, then we are requesting a file
             key = "/".join(path[2:])
-            content = aws_get_object_response(bucket, key)
-            return Response(status_code=200, content=content, headers={"Content-Type": "application/octet-stream"})
-        
+            return Response(
+                status_code=200, 
+                content=aws_get_object_response(bucket, key), 
+                headers={"Content-Type": "application/octet-stream"}
+                )
         elif len(path) == 2:
             # ListObjects - if the path is empty, then we are requesting a list of files
-            xml = aws_list_object_response(bucket, params)
-            return PlainTextResponse(status_code=200, content=xml, headers={"Content-Type": "application/xml"})
-
+            return PlainTextResponse(
+                status_code=200, 
+                content=aws_list_object_response(bucket, params), 
+                headers={"Content-Type": "application/xml"}
+                )
         else:   
             return JSONResponse({"message": "Not Implemented"}, status_code=501)
     

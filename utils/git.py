@@ -44,8 +44,8 @@ def git_commit_push():
     origin.push(branch)
 
     # delete the dataset file
-    if os.path.exists(f"{git_folder}/{dataset}"):
-        os.unlink(f"{git_folder}/{dataset}")
+    # if os.path.exists(f"{git_folder}/{dataset}"):
+       # os.unlink(f"{git_folder}/{dataset}")
 
 def init_git_repo():
 

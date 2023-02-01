@@ -22,14 +22,63 @@ def create_folder_if_not_exist(relative):
     return p_path
 
 
-def aws_list_object_v2_response(req_url, query_string):
+def aws_get_object_response(bucket, key):
+    # Read the file from the /data directory
+    ppath = physical_path(f"{bucket}/{key}")
+    with open(ppath, "rb") as file:
+        file_content = file.read()
+
+    # Return the file content
+    return file_content
+
+def aws_list_object_response(bucket, params):
+    # Parse the URL to extract the bucket and search parameters
+    # Get the prefix and max-keys search parameters
+    
+    prefix = ""
+    if "prefix" in params:
+        prefix = params.get("prefix")[0]
+    
+    max_keys = "1000"
+    if "max-keys" in params:
+        max_keys = params.get("max-keys")[0]
+
+    # Read files from the /data directory
+    physical_path = create_folder_if_not_exist(f"{bucket}/{prefix}")
+    files = os.listdir(physical_path)
+
+    # Create the XML response
+    root = ElementTree.Element("ListBucketResult", {"xmlns": "http://s3.amazonaws.com/doc/2006-03-01/"})
+    ElementTree.SubElement(root, "Name").text = bucket
+    ElementTree.SubElement(root, "Prefix").text = prefix
+    ElementTree.SubElement(root, "KeyCount").text = str(len(files))
+    ElementTree.SubElement(root, "MaxKeys").text = max_keys
+    ElementTree.SubElement(root, "IsTruncated").text = "false"
+
+    # Add the files to the XML response
+    for file in files:
+        content = ElementTree.SubElement(root, "Contents")
+        last_modified_iso = datetime.datetime.fromtimestamp(os.path.getmtime(f"{physical_path}/{file}")).isoformat()
+        file_size = os.path.getsize(f"{physical_path}/{file}")
+        e_tag = aws_s3_etag(f"{physical_path}/{file}")
+        ElementTree.SubElement(content, "Key").text = file
+        ElementTree.SubElement(content, "Size").text = str(file_size)
+        ElementTree.SubElement(content, "LastModified").text = last_modified_iso
+        ElementTree.SubElement(content, "ETag").text = e_tag
+        ElementTree.SubElement(content, "StorageClass").text = "STANDARD"
+
+    # Return the XML response
+    return ElementTree.tostring(root, encoding="utf-8", method="xml").decode("utf-8")
+
+
+def aws_list_object_v1_response(req_url, query_string):
     # Parse the URL to extract the bucket and search parameters
     url_parsed = urlparse(req_url)
     bucket = url_parsed.path.split("/")[0]
     params = parse_qs(query_string)
 
-    # check if its a list object v2 request
-    if not "list-type" in params or params["list-type"][0] != "2":
+    # check if its a list object v1 request
+    if "list-type" in params and params["list-type"][0] != "1":
         return None
 
     # Get the prefix and max-keys search parameters
@@ -63,7 +112,6 @@ def aws_list_object_v2_response(req_url, query_string):
     # Return the XML response
     return ElementTree.tostring(root, encoding="utf-8", method="xml").decode("utf-8")
 
-
 # transform md5 to python
 def md5(data):
     return hashlib.md5(data).hexdigest()
@@ -95,7 +143,6 @@ async def aws_put_object_stream_to_file(req):
     key = url_parts[-1]
     relative_path = "/".join(url_parts[1:-1])
     p_path = create_folder_if_not_exist(relative_path)
-    
 
     # read the stream and write to file
     body = await req.body()

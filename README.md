@@ -2,9 +2,11 @@
 
 The data stored in the labeling tools (such as Label Studio) is not directly availabe in the data science pipeline.
 
-It requires collaboration between the labeling team and the data science team to share the data.
+A collaboration is required between the labeling team and the data science team to share the data.
 
-The purpose of this project is to provide a minimal S3 API to breach the gap between Data Versioning Control (DVC) and annotation tools. The principle is to set this API as S3 Cloud Storage in the labeling tools and it will push the annotations to DVC. The data science team can then use the fresh data in the ML OPS pipeline.
+The purpose of this project is to provide a minimal S3 API to breach the gap between Data Versioning Control (DVC) and annotation tools. 
+
+This API will be integrated with labeling tools, such as Label Studio, and used as a cloud storage to store annotations. This integration will allow annotations to be pushed directly to Data Versioning Control (DVC) and accessible to the data science team in their machine learning operations pipeline. 
 
 It has been tested with Label Studio. Label Studio configuration allows to setup a Cloud Storage to store the annotations. The Cloud Storage can be configured to use an S3 API with a custom endpoint.
 

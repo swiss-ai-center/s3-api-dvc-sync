@@ -1,25 +1,21 @@
-# DVC Sync S3 API
+# DVC Sync S3 API: Bridging the Gap between Annotation Tools and Data Science Pipelines
 
-The data stored in the labeling tools (such as Label Studio) is not directly availabe in the data science pipeline.
+Data stored in labeling tools, such as Label Studio, is not directly accessible in the data science pipeline. This project aims to address this issue by providing a minimal S3 API that can serve as a bridge between the annotation tools and Data Versioning Control (DVC).
 
-A collaboration is required between the labeling team and the data science team to share the data.
-
-The purpose of this project is to provide a minimal S3 API to breach the gap between Data Versioning Control (DVC) and annotation tools. 
-
-This API will be integrated with labeling tools, such as Label Studio, and used as a cloud storage to store annotations. This integration will allow annotations to be pushed directly to Data Versioning Control (DVC) and accessible to the data science team in their machine learning operations pipeline. 
-
-It has been tested with Label Studio. Label Studio configuration allows to setup a Cloud Storage to store the annotations. The Cloud Storage can be configured to use an S3 API with a custom endpoint.
+The API will be integrated with labeling tools, such as Label Studio, as a cloud storage for annotations. This will allow annotations to be automatically pushed to DVC, making them easily accessible to the data science team in their machine learning operations pipeline.
 
 ### Working principles
-- Behaves like an S3 API by implementing a minimal subset of the S3 commands
+- Implements a minimal subset of S3 commands to behave like an S3 API
 - Stores the objects in a local folder
-- Works with the same GIT repository as the data science team - a separate branch can be configured 
-- Clone the project repository with sparse checkout to include only the necessary meta files
-- API behaves like a team member that updates the dataset file and pushes the changes to DVC and Git.  
+- Works with the same Git repository as the data science team, with the option to configure a separate branch
+- Project repository is cloned with sparse checkout to include only necessary meta files
+- Behaves like a team member, updating the dataset file and pushing changes to both DVC and Git
 
 ### Limitations
-- The API is not a full S3 API. It only implements the commands that are required by Label Studio Sync functionality.
-- The API is single tenant. It works for on a single project. It is possible to run multiple instances of the API for multiple projects. 
+- The API is not a complete S3 implementation, only providing the necessary commands for Label Studio Sync functionality
+- Currently designed for single-tenant use, only working with one project at a time. However, multiple instances of the API can be run for multiple projects.
+
+This project has been tested with Label Studio and its configuration allows for the setup of a cloud storage solution to store annotations. The cloud storage can be configured to use this S3 API with a custom endpoint.
 
 
 ## Configuration

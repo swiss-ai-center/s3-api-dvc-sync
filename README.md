@@ -1,6 +1,8 @@
 # DVC Sync S3 API
 
-The data stored in the labeling tools (such as Label Studio) is not accessible by DVC. It requires collaboration between the labeling team and the data science team to share up to date data.
+The data stored in the labeling tools (such as Label Studio) is not directly availabe in the data science pipeline.
+
+It requires collaboration between the labeling team and the data science team to share the data.
 
 The purpose of this project is to provide a minimal S3 API to breach the gap between Data Versioning Control (DVC) and annotation tools. The principle is to set this API as S3 Cloud Storage in the labeling tools and it will push the annotations to DVC. The data science team can then use the fresh data in the ML OPS pipeline.
 

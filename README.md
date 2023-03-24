@@ -6,6 +6,34 @@ Data stored in labeling tools, such as Label Studio, is not directly accessible 
 
 The API will be integrated with labeling tools, such as Label Studio, as a cloud storage for annotations. This will allow annotations to be automatically pushed to DVC, making them easily accessible to the data science team in their machine learning operations pipeline.
 
+<div class="center">
+<h3>
+  <center> 
+    Inital state of the project repository
+  </center> 
+</h3>
+<center>
+
+```mermaid
+sequenceDiagram
+    participant DataAnnotators
+    participant LabelStudio
+    participant DVCSyncS3API
+    participant DVC
+    participant DataScienceTeam
+    DataAnnotators->>+LabelStudio: Annotate Label Studio Tasks
+    LabelStudio->>-LabelStudio: Stores annotations in local storage
+    LabelStudio->>+DVCSyncS3API: Sync out annotations
+    Note right of DVCSyncS3API: DVCSyncS3API serves as a bridge
+    DVCSyncS3API-->>-LabelStudio: Successful storage
+    DVCSyncS3API->>+DVC: Sync
+    DVC-->>-CloudStorage for DvC: Successful push
+    Note right of DVC: Annotations are now<br/> accessible to the data science team
+    DataScienceTeam->>+DVC: Pull dataset
+```
+  </center> 
+</div>
+
 ### Working principles
 - Implements a minimal subset of S3 commands to behave like an S3 API
 - Stores the objects in a local folder
@@ -19,49 +47,78 @@ The API will be integrated with labeling tools, such as Label Studio, as a cloud
 
 This project has been tested with Label Studio and its configuration allows for the setup of a cloud storage solution to store annotations. The cloud storage can be configured to use this S3 API with a custom endpoint.
 
+<div class="center">
+<h3>
+  <center> 
+    Inital state of the project repository
+  </center> 
+</h3>
+<center>
+
+```mermaid
+graph TD
+
+A[Git with ML Codebase]
+B[DVC] -- tracks--> C[Dataset]
+D[tasks] -- in--> C
+E[annotations] -- in--> C
+B -- stores metadata--> A
+B -- stores data --> F[Cloud storage S3]
+```
+  </center> 
+</div>
 
 ## Configuration
 
 The configuration is done in the .env file. You can base your configuration on the .env.example file.
 
 ### Sync S3 Access key
-These are the credentials that will be used by label studio (using Boto3) to access the S3 API abstraction of dvc. The credentials are used to authenticate the user and to authorize the user to perform specific actions on the S3 API.
+These are the credentials that will be used by label studio (using Boto3) to access the S3 API abstraction of dvc. 
 
-You can define whatever Key ID and Secret you want. The only requirement is that the Key ID and Secret are the same as the ones defined in the Label Studio configuration.
+You can define whatever Key ID and Secret you want. The only requirement is that the Key ID and Secret are the same as the ones defined in the Label Studio project cloud storage configuration.  
 
 ```shell
-AWS_ACCESS_KEY_ID="test-id" 
-AWS_SECRET_ACCESS_KEY="test-secret"
+AWS_ACCESS_KEY_ID="my-super-id" 
+AWS_SECRET_ACCESS_KEY="my-super-secret"
 ```
 
-### Git configuration
-First we need to specify the local path where the git repository will be cloned. This is the path where the project repository will be cloned.
+You now need to chose the location of the local path where the S3 objects will be stored. This will store the annotations with their reference to the corresponding task (data). 
 
 ```shell
-GIT_FOLDER="./storage/git"
 S3_DATA_FOLDER="./storage/s3/objects"
 ```
 
-Then we need a personal access token (PAT) to access the project repository.
+### Git configuration
 
-```shell
-GIT_PAT_NAME="dvc-sync"
-GIT_PAT_TOKEN="glpat-xxx"
-```
+First, we need to specify the project repository URL and the branch to use. This repository is the way DVC will store it's metadata files to track changes on the dataset. It needs to be a DVC initialized repository. This includes the data already being tracked by DVC. 
 
-Finally, we need to specify the project repository URL and the branch to use.
+> Note we put a Personal Access Token (PAT) in the URL. This is because the repository is private and we need to authenticate to clone it.
 
 ```shell
 GIT_REPO="https://dvc-xxx:glpat-xxx@git-ext.iict.ch//stefan.teofanov/mlops_example_git_test.git"
 GIT_BRANCH="main"
 ```
 
+Then we need to specify the local path where the git repository will be cloned. This is the path where the project repository will be cloned.
+
+```shell
+GIT_FOLDER="./storage/git"
+```
+
+Then we need a personal access token (PAT) push to the project repository. This is the same PAT you used in the repo url.
+
+```shell
+GIT_PAT_NAME="dvc-sync"
+GIT_PAT_TOKEN="glpat-xxx"
+```
+
 ### DVC configuration
-configure DvC dataset, should correspond to the dataset location in the git repo
+Configure DvC dataset, should correspond to the dataset location in the git repo. This data file will be gitignored and managed by DVC. A metadata file named data.json.dvc will be created in the git repo to track changes.
 
 ```shell
 DVC_DATASET="data/data.json"
 ```
+
 Setup DvC Clound Storage Provider, currently supported: "gs" (Google Cloud Platform) and "s3" (Amazon Web Services)
 
 ```shell
